@@ -42,7 +42,15 @@ function get_fourier_func(coeffs::Vector{ComplexF64})
     end
 end
 
-cs = fourier_series(points, 25, .0001)
+function Circle(x,y,r)
+    ts = LinRange(0, 2π, 500)
+    return x .+ r * cos.(ts), y .+ r * sin.(ts)
+end
+
+
+plot(Circle(1,1,1))
+
+cs = fourier_series(points, 3, .0001)
 
 F = get_fourier_func(cs)
 ts = collect(0:0.001:2π)
@@ -50,42 +58,48 @@ fs = F.(ts)
 
 scatter(points);
 plot!(points);
-plot!(fs)
+plot!(fs, legend=false)
 
-plot(fs)
-plot(points)
+function plot_fourier_circles(coeffs::Vector{ComplexF64}, t::Float64=0.)
+    depth = length(coeffs) ÷ 2
+    n0 = depth + 1
+    ts = LinRange(0, 2π, 100)
 
-scatter(points)
-plot!(points)
-scatter!(interpolate(points, 0.1))
-plot!(fs)
+    p = plot(legend=false, size=(600,600), aspect_ratio=:equal)
 
-T = length(points)
-Δt = 0.1
-
-T2 = length(1:Δt:T)
-println([2*π*t/T for t in 0:Δt:T])
-
-2*π*Δt/T
+    current = coeffs[n0]
+    scatter!([coeffs[n0]], mc=2)
 
 
-Δt = 1.
-f = interpolate(points, Δt)
-plot(f)
-T = length(points)
-E = [exp(-2*π*im*t/(T-1)) for t in 0:Δt:T]
-plot(E)
+    for d in 1:depth
+        n = n0 + d
+        plot!(current .+ coeffs[n] * exp.(im*d*ts), lc=1)
+        current += coeffs[n] * exp(im*d*t)
+        scatter!([current], mc=2)
 
-plot(real.(E))
-plot!(imag.(E))
+        n = n0 - d
+        plot!(current .+ coeffs[n] * exp.(-im*d*ts), lc=1)
+        current += coeffs[n] * exp(-im*d*t)
+        scatter!([current], mc=2)
+    end
 
-1/2π * Δt * E'f
+    return p
+end
 
-1/2π * 2π/100 * points'points2
+plot_fourier_circles(cs)
 
-plot(real.(f))
-plot!(real.(E))
+function animate_fourier(coeffs::Vector{ComplexF64}, n::Int=100; fps=30)
+    ts = LinRange(0, 2π, n)
+    F = get_fourier_func(coeffs)
+    fs = F.(ts)
 
-plot(real.(f.*E))
+    anim = Animation()
+    @progress for t in ts
+        p = plot_fourier_circles(coeffs, t)
+        plot!(fs)
+        frame(anim, p)
+    end
+    gif(anim, pwd() * "\\fourier.gif", fps=fps)
+end
 
-1/length(f) * E'f - 1/length(f)*(f[1]*E[1]+f[end]*E[end])/2
+animate_fourier(cs, 1000, fps=30)
