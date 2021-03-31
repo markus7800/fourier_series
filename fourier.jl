@@ -41,14 +41,10 @@ function plot_fourier_circles(coeffs::Vector{ComplexF64}, t::Float64=0.; circle_
         plot!(current .+ coeffs[n] * exp.(im*d*ts), lc=circle_color)
         current += coeffs[n] * exp(im*d*t)
         scatter!([current], mc=2, ms=center_size)
-        println(d, ": ", current)
 
         n = n0 - d
         plot!(current .+ coeffs[n] * exp.(-im*d*ts), lc=circle_color)
-
         current += coeffs[n] * exp(-im*d*t)
-        println(d, ": ", current)
-
         scatter!([current], mc=2, ms=center_size)
     end
 

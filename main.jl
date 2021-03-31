@@ -3,14 +3,12 @@ include("fourier.jl")
 using CSV
 using DataFrames
 
-println("Filepath of csv of curve points:")
-filename = input()
-filename = "hello.csv"
+filename = "input/hello.csv"
 
 df = CSV.read(filename, DataFrame)
 points = Float64.(df[!, "x"]) .- im * df[!, "y"]
 
-depth = 15
+depth = 15 # = number of circles / 2
 
 coeffs = fourier_series(points, depth, 0.01)
 CSV.write("hello_fourier15.csv", DataFrame(x=real.(coeffs), y=imag.(coeffs)))
@@ -31,4 +29,4 @@ plot!(fs, legend=false)
 anim = animate_fourier(coeffs, 450, fps=30, trace=true, t0=0.15, t1=2π-0.1,
     lw=4, xlims=(-50, 400), ylims=(-300, -25))
 
-mp4(anim, "hello.mp4", fps=30)
+gif(anim, "hello.gif", fps=30)
