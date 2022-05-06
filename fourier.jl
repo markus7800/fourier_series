@@ -25,12 +25,14 @@ function get_fourier_func(coeffs::Vector{ComplexF64})
 end
 
 
-function plot_fourier_circles(coeffs::Vector{ComplexF64}, t::Float64=0.; circle_color=1, center_size=2, xlims, ylims)
+function plot_fourier_circles(coeffs::Vector{ComplexF64}, t::Float64=0.; circle_color=1, center_size=2, xlims, ylims, p=nothing)
     depth = length(coeffs) ÷ 2
     n0 = depth + 1
     ts = LinRange(0, 2π, 100)
 
-    p = plot(legend=false, size=(600,600), xlims=xlims, ylims=ylims, aspect_ratio=:equal, axis=nothing, border=:none, xlabel="", ylabel="")
+    if isnothing(p)
+        p = plot(legend=false, size=(600,600), xlims=xlims, ylims=ylims, aspect_ratio=:equal, axis=nothing, border=:none, xlabel="", ylabel="")
+    end
 
     current = coeffs[n0]
     scatter!([coeffs[n0]], mc=2, ms=center_size)
@@ -52,7 +54,7 @@ function plot_fourier_circles(coeffs::Vector{ComplexF64}, t::Float64=0.; circle_
 end
 
 
-function animate_fourier(coeffs::Vector{ComplexF64}, n::Int=100; fps=30, trace=false,
+function animate_fourier(coeffs::Vector{ComplexF64}, n::Int=100; trace=false,
     circle_color=1, center_size=2, lw=3, lc=:black, t0=0, t1=2π, xlims, ylims)
     ts = LinRange(0, 2π, n)
     F = get_fourier_func(coeffs)
